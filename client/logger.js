@@ -26,7 +26,7 @@ Template.logger.events({
   "mousemove .container"(event) {
     // check if it has fired in the past 500ms
 
-    if (event.timeStamp < oldTimeStamp + 100) {
+    if (event.timeStamp < oldTimeStamp + 10) {
       console.log("THROTTLED!")
       return
     } else {
