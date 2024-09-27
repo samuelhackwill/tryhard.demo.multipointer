@@ -1,47 +1,60 @@
-import "./logger.html"
+import { Meteor } from "meteor/meteor"
+import { Template } from "meteor/templating"
 import { ReactiveDict } from "meteor/reactive-dict"
+import { streamer } from "../both/streamer.js" // Import the streamer to send data
+import "./logger.html"
 
-oldTimeStamp = 0
+// Subscribe to the 'clients' publication to track active clients
+Meteor.subscribe("clients")
 
 Template.logger.onCreated(function () {
-  // console.log(this.data.number)
-  pointer = new ReactiveDict()
-  pointer.set("X", 1)
-  pointer.set("Y", 1)
+  this.pointer = new ReactiveDict()
+  this.pointer.set("X", 1)
+  this.pointer.set("Y", 1)
+
+  // Reactive variable to hold the assigned client number
+  this.clientNumber = new ReactiveVar(null)
+
+  // Call a method to register this client and get its number
+  Meteor.call("addClient", (error, result) => {
+    if (!error) {
+      this.clientNumber.set(result)
+      console.log("Assigned client number:", result)
+    }
+  })
 })
 
 Template.logger.helpers({
   screenNumber() {
-    return this.number
+    return Template.instance().clientNumber.get()
   },
   posX() {
-    return pointer.get("X")
+    return Template.instance().pointer.get("X")
   },
   posY() {
-    return pointer.get("Y")
+    return Template.instance().pointer.get("Y")
   },
 })
 
 Template.logger.events({
-  "mousemove .container"(event) {
-    // check if it has fired in the past 500ms
-
-    if (event.timeStamp < oldTimeStamp + 10) {
-      console.log("THROTTLED!")
+  "mousemove .container"(event, instance) {
+    const timestamp = Date.now()
+    if (timestamp < instance.oldTimeStamp + 50) {
       return
-    } else {
-      oldTimeStamp = event.timeStamp
-      console.log("movin, timestamp = ", event.timeStamp)
-      console.log("movin, X = ", event.originalEvent.clientX, "; Y = ", event.originalEvent.clientY)
-
-      coordX = event.originalEvent.clientX
-      coordY = event.originalEvent.clientY
-
-      pointer.set("X", coordX)
-      pointer.set("Y", coordY)
-
-      message = { pointer: Number(this.number), coords: [coordX, coordY] }
-      sendMessage(message)
     }
+    instance.oldTimeStamp = timestamp
+
+    const coordX = event.clientX
+    const coordY = event.clientY
+
+    instance.pointer.set("X", coordX)
+    instance.pointer.set("Y", coordY)
+
+    const message = { pointer: instance.clientNumber.get(), coords: [coordX, coordY] }
+    sendMessage(message)
   },
 })
+
+function sendMessage(message) {
+  streamer.emit("message", message) // Use the streamer or other method to send the message to the server
+}
