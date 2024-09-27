@@ -1,16 +1,15 @@
 import { FlowRouter } from "meteor/ostrio:flow-router-extra"
-
 import "./logger.js"
 import "./show.js"
 
-FlowRouter.route("/:number", {
+FlowRouter.route("/", {
   name: "logger",
-  action(params) {
-    this.render("logger", params)
+  action() {
+    this.render("logger")
   },
 })
 
-FlowRouter.route("/", {
+FlowRouter.route("/show", {
   name: "show",
   action() {
     this.render("show")

@@ -1,6 +1,5 @@
 <template name="show">
-  <div class="container" style="position: absolute; width: 100vw; height: 100vh; background-color: lightpink">show me the money</div>
-
-  <div style="position:absolute; left:{{posX arg=1}}px ; top:{{posY arg=1}}px">pointer 1</div>
-  <div style="position:absolute; left:{{posX arg=2}}px ; top:{{posY arg=2}}px">pointer 2</div>
+  {{#each allPointers}}
+  <div class="pointer" style="position:absolute; left: {{this.coordsX}}px; top: {{this.coordsY}}px;">Client{{this.number}}</div>
+  {{/each}}
 </template>

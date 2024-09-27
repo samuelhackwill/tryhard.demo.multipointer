@@ -6,26 +6,42 @@ import { FlowRouter } from "meteor/ostrio:flow-router-extra"
 import "./show.html"
 
 Template.show.onCreated(function () {
-  pointers = new ReactiveDict()
-  pointers.set(1, [1, 1])
-  pointers.set(2, [1, 1])
+  // Initialize the reactive dictionary to keep track of each client's pointer position.
+  this.pointers = new ReactiveDict()
+
+  // fuuuuu
+  instance = this
 })
 
 streamer.on("message", function (message) {
-  // only run if from show layout. Didn't find another way of doing it
-  // as streamer seems to be a global object and runs everywhere.
-  if (FlowRouter.getRouteName() == "show") {
-    console.log(message.pointer, message.coords)
-    pointers.set(message.pointer, message.coords)
+  // Ensure the code only runs on the 'show' route to avoid unwanted executions.
+  if (FlowRouter.getRouteName() === "show") {
+    // console.log("Client:", message.pointer, "Coordinates:", message.coords)
+
+    // Use the message.pointer to dynamically update the pointer position in the reactive dictionary.
+    // This will add or update the client's position.
+    instance.pointers.set(message.pointer, message.coords)
   }
 })
 
 Template.show.helpers({
+  // Dynamically get the X position of a pointer based on its number.
   posX(number) {
-    // console.log("help ", pointers.get(number.hash.arg)[0])
-    return pointers.get(number.hash.arg)[0]
+    const pointers = Template.instance().pointers
+    return pointers.get(number.hash.arg) ? pointers.get(number.hash.arg)[0] : 0
   },
+  // Dynamically get the Y position of a pointer based on its number.
   posY(number) {
-    return pointers.get(number.hash.arg)[1]
+    const pointers = Template.instance().pointers
+    return pointers.get(number.hash.arg) ? pointers.get(number.hash.arg)[1] : 0
+  },
+  // Get all client pointers for iteration if you want to display all.
+  allPointers() {
+    const pointers = Template.instance().pointers.all()
+    return Object.keys(pointers).map((key) => ({
+      number: key,
+      coordsX: pointers[key][0],
+      coordsY: pointers[key][1],
+    }))
   },
 })
