@@ -1,9 +1,9 @@
 <template name="show">
   {{#each allPointers}}
-  <div class="pointer-events-none border-solid border-2 border-indigo-800 bg-cursor bg-contain pointer w-[15px] h-[25px] bg-no-repeat" style="position:absolute; left:{{this.coordsX}}px; top:{{this.coordsY}}px;">
-    <span class="pl-4">{{this.number}}</span>
+  <div class="pointer-events-none bg-cursor bg-contain pointer w-[30px] h-[50px] bg-no-repeat" style="position:absolute; left:{{this.coordsX}}px; top:{{this.coordsY}}px;" id="pointer{{this.number}}">
+    <span class="pl-8">{{this.number}}</span>
   </div>
   {{/each}}
 
-  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 m-12 rounded">PROUT</button>
+  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 m-12 rounded">Clic</button>
 </template>

@@ -5,6 +5,7 @@ module.exports = {
     extend: {
       backgroundImage: {
         cursor: "url('/cursor.png')",
+        pointer: "url('/pointer.png')",
       },
     },
   },

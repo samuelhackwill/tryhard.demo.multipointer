@@ -62,6 +62,14 @@ Template.logger.events({
 
     sendMessage(message)
   },
+  "mouseup .container"(event, instance) {
+    const coordX = event.clientX
+    const coordY = event.clientY
+
+    const message = { type: "mouseup", pointer: instance.clientNumber.get(), coords: [coordX, coordY] }
+
+    sendMessage(message)
+  },
 })
 
 function sendMessage(message) {
