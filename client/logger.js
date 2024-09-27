@@ -29,20 +29,21 @@ Template.logger.helpers({
     return Template.instance().clientNumber.get()
   },
   posX() {
-    return Template.instance().pointer.get("X")
+    return Template.instance().pointer.get("X") - 10
   },
   posY() {
-    return Template.instance().pointer.get("Y")
+    return Template.instance().pointer.get("Y") - 20
   },
 })
 
 Template.logger.events({
   "mousemove .container"(event, instance) {
-    const timestamp = Date.now()
-    if (timestamp < instance.oldTimeStamp + 50) {
-      return
-    }
-    instance.oldTimeStamp = timestamp
+    // const timestamp = Date.now()
+    // // 1000/60 = 16.66. 60FPS mammen!
+    // if (timestamp < instance.oldTimeStamp + 10) {
+    //   return
+    // }
+    // instance.oldTimeStamp = timestamp
 
     const coordX = event.clientX
     const coordY = event.clientY
@@ -50,7 +51,15 @@ Template.logger.events({
     instance.pointer.set("X", coordX)
     instance.pointer.set("Y", coordY)
 
-    const message = { pointer: instance.clientNumber.get(), coords: [coordX, coordY] }
+    const message = { type: "move", pointer: instance.clientNumber.get(), coords: [coordX, coordY] }
+    sendMessage(message)
+  },
+  "mousedown .container"(event, instance) {
+    const coordX = event.clientX
+    const coordY = event.clientY
+
+    const message = { type: "mousedown", pointer: instance.clientNumber.get(), coords: [coordX, coordY] }
+
     sendMessage(message)
   },
 })
