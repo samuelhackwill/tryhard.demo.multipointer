@@ -1,7 +1,7 @@
 <template name="show">
   {{#each allPointers}}
-  <div class="pointer-events-none bg-cursor bg-contain pointer w-[30px] h-[50px] bg-no-repeat" style="position:absolute; left:{{this.coordsX}}px; top:{{this.coordsY}}px;" id="pointer{{this.number}}">
-    <span class="pl-8">{{this.number}}</span>
+  <div class="pointer-events-none bg-cursor bg-contain pointer w-[30px] h-[50px] bg-no-repeat" style="position:absolute; left:{{this.coords.x}}px; top:{{this.coords.y}}px;" id="pointer{{this.id}}">
+    <span class="pl-8">{{this.id}}</span>
   </div>
   {{/each}}
 
