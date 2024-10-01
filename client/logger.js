@@ -24,6 +24,13 @@ Template.logger.onCreated(function () {
   })
 })
 
+Template.logger.onRendered(function() {
+  console.log("logger rendered")
+  document.querySelector("body").addEventListener("click", function() {
+    document.querySelector("body").requestPointerLock();
+  }, {once:true})
+})
+
 Template.logger.helpers({
   screenNumber() {
     return Template.instance().clientNumber.get()
