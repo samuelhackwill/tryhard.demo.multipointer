@@ -16,47 +16,26 @@ Template.show.onCreated(function () {
   instance = this
 })
 
-streamer.on("message", function (message) {
+Template.show.onRendered(function () {
+  streamer.emit("showInit", {"width":window.innerWidth, "height":window.innerHeight})
+})
+
+streamer.on("displayMessage", function (message) {
   // Ensure the code only runs on the 'show' route to avoid unwanted executions.
   if (FlowRouter.getRouteName() === "show") {
-    // console.log("Client:", message.pointer, "Coordinates:", message.coords)
-
-    switch (message.type) {
-      case "mousedown":
-        simulateMouseDown(message)
-        break
-
-      case "mouseup":
-        simulateMouseUp(message)
-        break
-
-      case "move":
-        simulateMouseEnter(message)
-        instance.pointers.set(message.pointer, message.coords)
-        break
-    }
+    //message.pointers contains all the pointers that have changed state this frame (moved, etc)
+    // => reflect this change on the reactive dictionary
+    message.pointers.forEach(p => {
+      instance.pointers.set(p.id, p);
+    })
   }
 })
 
 Template.show.helpers({
-  // Dynamically get the X position of a pointer based on its number.
-  posX(number) {
-    const pointers = Template.instance().pointers
-    return pointers.get(number.hash.arg) ? pointers.get(number.hash.arg)[0] : 0
-  },
-  // Dynamically get the Y position of a pointer based on its number.
-  posY(number) {
-    const pointers = Template.instance().pointers
-    return pointers.get(number.hash.arg) ? pointers.get(number.hash.arg)[1] : 0
-  },
   // Get all client pointers for iteration if you want to display all.
   allPointers() {
-    const pointers = Template.instance().pointers.all()
-    return Object.keys(pointers).map((key) => ({
-      number: key,
-      coordsX: pointers[key][0],
-      coordsY: pointers[key][1],
-    }))
+    const pointers = Object.values(instance.pointers.all());
+    return pointers;
   },
 })
 
