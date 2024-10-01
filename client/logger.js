@@ -4,6 +4,7 @@ import { ReactiveDict } from "meteor/reactive-dict"
 import { streamer } from "../both/streamer.js" // Import the streamer to send data
 import "./logger.html"
 
+
 // Subscribe to the 'clients' publication to track active clients
 Meteor.subscribe("clients")
 
@@ -11,6 +12,8 @@ Template.logger.onCreated(function () {
   this.pointer = new ReactiveDict()
   this.pointer.set("X", 1)
   this.pointer.set("Y", 1)
+
+  instance = this
 
   // Reactive variable to hold the assigned client number
   this.clientNumber = new ReactiveVar(null)
@@ -21,6 +24,30 @@ Template.logger.onCreated(function () {
       this.clientNumber.set(result)
       console.log("Assigned client number:", result)
     }
+  })
+
+  document.addEventListener("mousemove", function(event) {
+    let coords = {
+      x: event.movementX,
+      y: event.movementY
+    }
+
+    let newPointerPosition = {
+      x: instance.pointer.get("X") + coords.x,
+      y: instance.pointer.get("Y") + coords.y
+    }
+
+    //Clamp newPointerPosition between 0,0 and containerDimensions
+    let containerDimensions = {x:document.querySelector(".container").clientWidth, y:document.querySelector(".container").clientHeight};
+    if(newPointerPosition.x < 0) newPointerPosition.x = 0;
+    if(newPointerPosition.y < 0) newPointerPosition.y = 0;
+    if(newPointerPosition.x > containerDimensions.x) newPointerPosition.x = containerDimensions.x;
+    if(newPointerPosition.y > containerDimensions.y) newPointerPosition.y = containerDimensions.y;
+
+    instance.pointer.set("X", newPointerPosition.x)
+    instance.pointer.set("Y", newPointerPosition.y)
+
+    sendMessage({ type: "move", pointer: instance.clientNumber.get(), coords: coords })
   })
 })
 
@@ -44,23 +71,6 @@ Template.logger.helpers({
 })
 
 Template.logger.events({
-  "mousemove .container"(event, instance) {
-    // const timestamp = Date.now()
-    // // 1000/60 = 16.66. 60FPS mammen!
-    // if (timestamp < instance.oldTimeStamp + 10) {
-    //   return
-    // }
-    // instance.oldTimeStamp = timestamp
-
-    const coordX = event.clientX
-    const coordY = event.clientY
-
-    instance.pointer.set("X", coordX)
-    instance.pointer.set("Y", coordY)
-
-    const message = { type: "move", pointer: instance.clientNumber.get(), coords: [coordX, coordY] }
-    sendMessage(message)
-  },
   "mousedown .container"(event, instance) {
     const coordX = event.clientX
     const coordY = event.clientY
