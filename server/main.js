@@ -8,6 +8,7 @@ export const Clients = new Mongo.Collection("clients")
 const description = "Test de performance de la connection DDP. On teste d'utiliser la réactivité meteor out of the box pour voir si c'est crédible avec x pointeurs de souris en temps réél."
 let eventQueue = [];
 let pointers = [];
+let universeDimensions = {width:0, height:0}
 
 WebApp.connectHandlers.use("/api/hello", (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*") // Allow all origins (use specific domains for more security)
@@ -26,6 +27,10 @@ streamer.on("pointerMessage", function (message) {
   }
 })
 
+streamer.on("showInit", function (message) {
+  universeDimensions.width = message.width;
+  universeDimensions.height = message.height;
+  console.log(message);
 })
 
 Meteor.methods({
@@ -42,7 +47,7 @@ Meteor.methods({
     return newClientNumber
   },
 })
-
+ 
 Meteor.startup(async () => {
   console.log("nuking all clients ")
   Clients.remove({})
@@ -51,7 +56,7 @@ Meteor.startup(async () => {
  
   Meteor.setInterval(step, 1/60.0 * 1000);
 })
-
+ 
 // Automatically handle cleanup when a client disconnects
 Meteor.onConnection((connection) => {
   const connectionId = connection.id
@@ -84,6 +89,12 @@ function step() {
   eventQueue = [];
 
 
+  //Filters
+  pointers = pointers.map(p => applyGravity(p));
+  pointers = pointers.map(p => clampPositionToUniverseBounds(p));
+
+  ////////
+
   let updateInstructions = {
     pointers: pointers.filter(p => p.dirty)
   }
@@ -97,4 +108,35 @@ function createPointer(id) {
   let newPointer = { id: id, coords:{x:50, y:50} };
   pointers.push(newPointer);
   return newPointer;
+}
+
+function clampPositionToUniverseBounds(p) {
+  let dirty = false;
+  if(p.coords.x < 0)
+  {
+    p.coords.x = 0;
+    dirty = true;
+  }
+  if(p.coords.y < 0)
+  {
+    p.coords.y = 0;
+    dirty = true;
+  }
+  if(p.coords.x > universeDimensions.width)
+  {
+    p.coords.x = universeDimensions.width;
+    dirty = true;
+  } 
+  if(p.coords.y > universeDimensions.height)
+  {
+    p.coords.y = universeDimensions.height;
+    dirty = true;
+  }
+  return p;
+}
+
+function applyGravity(p, deltaTime) {
+  p.coords.y += (300 / 60.0)
+  p.dirty = true;
+  return p;
 }

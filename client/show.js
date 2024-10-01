@@ -16,7 +16,10 @@ Template.show.onCreated(function () {
   instance = this
 })
 
-streamer.on("message", function (message) {
+Template.show.onRendered(function () {
+  streamer.emit("showInit", {"width":window.innerWidth, "height":window.innerHeight})
+})
+
 streamer.on("displayMessage", function (message) {
   // Ensure the code only runs on the 'show' route to avoid unwanted executions.
   if (FlowRouter.getRouteName() === "show") {
