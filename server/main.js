@@ -18,9 +18,7 @@ streamer.allowRead("all")
 streamer.allowWrite("all")
 
 streamer.on("pointerMessage", function (message) {
-  if (message.type == "move") {
-    eventQueue.push(message)
-  }
+  eventQueue.push(message);
 })
 
 streamer.on("showInit", function (message) {
@@ -47,16 +45,25 @@ function step() {
     if (pointer == undefined) {
       pointer = createPointer(e.loggerId)
     }
-
-    //TODO: Rewrite this using a single vector-type param (eg pointer.move(e.coords))
-    pointer.coords.x += e.coords.x
-    pointer.coords.y += e.coords.y
-    pointer.dirty = true
-  })
+    
+    if(e.type == "move") {
+      //TODO: Rewrite this using a single vector-type param (eg pointer.move(e.coords))
+      pointer.coords.x += e.coords.x;
+      pointer.coords.y += e.coords.y;
+    } else if (e.type == "mousedown") {
+      if(!pointer.isDown) pointer.mousedown = true;
+      pointer.isDown = true;
+    } else if (e.type == "mouseup") {
+      if(pointer.isDown) pointer.mouseup = true;
+      pointer.isDown = false;
+    }
+    
+    pointer.dirty = true;
+  });
   eventQueue = []
 
   //Filters
-  pointers = pointers.map((p) => applyGravity(p))
+  //pointers = pointers.map((p) => applyGravity(p))
   pointers = pointers.map((p) => clampPositionToUniverseBounds(p))
 
   ////////
@@ -67,11 +74,13 @@ function step() {
 
   streamer.emit("displayMessage", updateInstructions)
 
-  pointers = pointers.map((p) => {
+  pointers = pointers.map(p => {
     p.dirty = false
+    p.mousedown = false
+    p.mouseup = false
     return p
   })
-}
+} 
 
 function createPointer(id) {
   let newPointer = { id: id, coords: { x: 50, y: 50 } }

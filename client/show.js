@@ -27,6 +27,13 @@ streamer.on("displayMessage", function (message) {
     // => reflect this change on the reactive dictionary
     message.pointers.forEach(p => {
       instance.pointers.set(p.id, p);
+
+      if(p.mousedown) {
+        simulateMouseDown(p)
+      }
+      if(p.mouseup) {
+        simulateMouseUp(p)
+      }
     })
   }
 })
@@ -45,70 +52,24 @@ Template.show.events({
   },
 })
 
-simulateMouseUp = function (message) {
-  pointer = document.getElementById("pointer" + message.pointer)
-  pointer.classList.remove("border-solid", "border-2")
-
-  const [x, y] = message.coords
-  const element = document.elementFromPoint(x, y)
+simulateMouseUp = function (pointer) {
+  const element = getElementAt(pointer.coords)
 
   if (element.tagName == "BUTTON") {
-    // Visual feedback for debugging
-    // element.style.outline = "2px solid red" // Highlight the element
-    element.click()
-    element.classList.remove("border-solid", "border-2", "border-indigo-800")
-  } else {
-    return
-    // console.warn("No element found at coordinates:", [x, y])
+    element.classList.remove("clicked")
   }
 }
 
-simulateMouseDown = function (message) {
-  // console.log("click!", Number(message.coords[0]), Number(message.coords[1]))
-  // rond = [message.coords[0], message.coords[1]]
-  // document.elementFromPoint(Number(message.coords[0]), Number(message.coords[1])).click()
-
-  // document.elementFromPoint(109, 60).click()
-  pointer = document.getElementById("pointer" + message.pointer)
-  pointer.classList.add("border-solid", "border-2", "border-indigo-800")
-
-  const [x, y] = message.coords
-  const element = document.elementFromPoint(x, y)
-  // console.log("Element at coordinates:", element)
-  console.log(message.pointer, " clicked on button")
+simulateMouseDown = function (pointer) {
+  const element = getElementAt(pointer.coords)
 
   if (element.tagName == "BUTTON") {
-    // Visual feedback for debugging
-    // element.style.outline = "2px solid red" // Highlight the element
     element.click()
-    element.classList.add("border-solid", "border-2", "border-indigo-800")
-  } else {
-    return
-    // console.warn("No element found at coordinates:", [x, y])
+    element.classList.add("clicked")
   }
 }
 
-simulateMouseEnter = function (message) {
-  if (animationFrame) {
-    cancelAnimationFrame(animationFrame)
-  }
-  animationFrame = requestAnimationFrame(() => {
-    const [x, y] = message.coords
-    const element = document.elementFromPoint(x, y)
-
-    if (element !== Lastelement && element?.tagName === "BUTTON") {
-      // Remove the class from the last element if it was set
-      Lastelement?.classList.remove("!bg-red-600")
-      pointer = document.getElementById("pointer" + message.pointer)
-      pointer.classList.add("!bg-pointer")
-      // Update the class of the new element
-      element.classList.add("!bg-red-600")
-      Lastelement = element
-    } else if (!element || element.tagName !== "BUTTON") {
-      Lastelement?.classList.remove("!bg-red-600")
-      Lastelement = null
-      pointer = document.getElementById("pointer" + message.pointer)
-      pointer.classList.remove("!bg-pointer")
-    }
-  })
+function getElementAt(coords)
+{
+  return document.elementFromPoint(coords.x, coords.y)
 }

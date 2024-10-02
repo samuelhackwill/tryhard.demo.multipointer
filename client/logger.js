@@ -44,6 +44,12 @@ Template.logger.onCreated(function () {
 
     sendMessage({ type: "move", loggerId: instance.loggerId, coords: coords })
   })
+  document.addEventListener("mousedown", function(event) {
+    sendMessage({ type: "mousedown", loggerId: instance.loggerId })
+  })
+  document.addEventListener("mouseup", function(event) {
+    sendMessage({ type: "mouseup", loggerId: instance.loggerId })
+  })
 })
 
 Template.logger.onRendered(function() {
@@ -62,25 +68,6 @@ Template.logger.helpers({
   },
   posY() {
     return Template.instance().pointer.get("Y")
-  },
-})
-
-Template.logger.events({
-  "mousedown .container"(event, instance) {
-    const coordX = event.clientX
-    const coordY = event.clientY
-
-    const message = { type: "mousedown", loggerId: instance.loggerId, coords: {x:coordX, y:coordY} }
-
-    sendMessage(message)
-  },
-  "mouseup .container"(event, instance) {
-    const coordX = event.clientX
-    const coordY = event.clientY
-
-    const message = { type: "mouseup", loggerId: instance.loggerId, coords: {x:coordX, y:coordY} }
-
-    sendMessage(message)
   },
 })
 
