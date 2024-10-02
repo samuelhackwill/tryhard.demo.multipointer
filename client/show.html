@@ -5,5 +5,28 @@
   </div>
   {{/each}}
 
+  <div id="garden">
+    <style>
+      #garden {
+        position:absolute;
+        top: 30px;
+        left: 30px;
+        width:500px;
+        height:500px;
+        display: grid;
+        grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+      }
+      .crop {
+        cursor: pointer;
+        font-size:50px;
+        line-height:50px; 
+        border: 2px solid transparent;
+      }
+      .crop.clicked {
+        border: 2px solid indigo;
+      }
+    </style>
+  </div>
+
   <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 m-12 rounded">Clic</button>
 </template>

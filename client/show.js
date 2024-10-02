@@ -18,6 +18,15 @@ Template.show.onCreated(function () {
 
 Template.show.onRendered(function () {
   streamer.emit("showInit", {"width":window.innerWidth, "height":window.innerHeight})
+
+  for(let i = 0; i < 100; i++)
+  {
+    let button = document.createElement("button");
+    button.classList.add("crop");
+    button.innerHTML = "▫️";
+    button.addEventListener("click", e => rotateCrop(e.target));
+    document.querySelector("#garden").appendChild(button);
+  }
 })
 
 streamer.on("displayMessage", function (message) {
@@ -72,4 +81,14 @@ simulateMouseDown = function (pointer) {
 function getElementAt(coords)
 {
   return document.elementFromPoint(coords.x, coords.y)
+}
+
+
+const allCrops = ["🌵", "🎄", "🌲", "🌳", "🌴", "🌱"];
+function rotateCrop(cropElement) {
+  let old;
+  do {
+    old = cropElement.innerHTML;
+    cropElement.innerHTML = allCrops[Math.floor(Math.random() * allCrops.length)];
+  } while (old == cropElement.innerHTML);
 }
